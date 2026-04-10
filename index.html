@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+<title>Ecosistema Domus Capital</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --p1:#1a515c;--p3:#62b9c7;
+  --s1:#a6a6a6;--s3:#020d14;
+  --lt:#e0f2f4;--bg:#f5f9fa;--w:#fff;
+  --con:#1a515c;--ban:#1a7a6a;--ges:#2a8a4a;
+  --ally:#b07018;--team:#6040a8;--tech:#2060a0;
+}
+html,body{height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:var(--bg);color:var(--s3)}
+#wrap{width:100%;height:100%;overflow:auto;-webkit-overflow-scrolling:touch}
+#board{position:relative;transform-origin:0 0}
+#board::before{content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle,rgba(26,81,92,0.04) 1px,transparent 1px);
+  background-size:44px 44px;pointer-events:none}
+svg.cv{position:absolute;top:0;left:0;pointer-events:none}
+
+.orb{position:absolute;border-radius:50%;border:1px dashed rgba(98,185,199,0.1);pointer-events:none;transform:translate(-50%,-50%)}
+.zone{position:absolute;border-radius:20px;pointer-events:none}
+
+/* Section titles - pill badges, strong contrast */
+.zt{position:absolute;pointer-events:none;
+  font-size:16px;font-weight:700;letter-spacing:5px;text-transform:uppercase;
+  padding:10px 24px;border-radius:8px;border:2px solid;white-space:nowrap}
+
+.hl{position:absolute;pointer-events:none;
+  font-size:13px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--p3);opacity:0.35}
+
+/* Sun - BIGGER */
+.sun{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:20}
+.sun-c{width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle at 36% 36%,#7cd4c0,#1a515c 55%,#0d3a42);
+  box-shadow:0 0 0 12px rgba(98,185,199,0.08),0 0 60px rgba(98,185,199,0.06);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;transition:box-shadow .3s}
+.sun:hover .sun-c{box-shadow:0 0 0 16px rgba(98,185,199,0.16),0 0 80px rgba(98,185,199,0.1)}
+.sun-c .s1{font-size:18px;font-weight:700;letter-spacing:5px;color:#fff}
+.sun-c .s2{font-size:11px;font-weight:400;letter-spacing:2px;color:rgba(255,255,255,0.6);margin-top:3px}
+
+/* Nodes - horizontal flex layout */
+.nd{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:10;
+  display:flex;align-items:center;gap:14px;transition:transform .2s}
+.nd:hover{transform:translate(-50%,-50%) scale(1.08);z-index:50}
+.nd.a-right{flex-direction:row}
+.nd.a-left{flex-direction:row-reverse}
+.nd.a-center{flex-direction:column;text-align:center}
+
+.nd-dot{border-radius:50%;flex-shrink:0;transition:box-shadow .2s}
+.nd:hover .nd-dot{box-shadow:0 0 0 5px color-mix(in srgb,var(--nc) 20%,transparent),0 0 14px color-mix(in srgb,var(--nc) 10%,transparent)}
+
+.nd-info{display:flex;flex-direction:column;white-space:nowrap}
+.nd.a-left .nd-info{text-align:right}
+.nd.a-center .nd-info{align-items:center}
+
+/* BIGGER TEXT across the board */
+.nd-n{font-size:16px;font-weight:600;color:var(--s3);line-height:1.3}
+.nd-s{font-size:13px;font-weight:400;color:#6a7580;line-height:1.4;margin-top:2px}
+
+/* Line nodes even bigger */
+.nd.line-nd .nd-n{font-size:19px;font-weight:700;color:var(--p1)}
+.nd.line-nd .nd-s{font-size:14px;color:var(--p3)}
+
+/* Accionistas */
+.nd.accionista .nd-n{font-size:18px;font-weight:700;color:var(--p1)}
+.nd.accionista .nd-s{font-size:13px;color:var(--p3)}
+
+.nd.seed .nd-n{opacity:0.50}.nd.seed .nd-dot{opacity:0.45}.nd.seed .nd-s{opacity:0.45}
+
+.fl{position:absolute;transform:translate(-50%,-50%);pointer-events:none;
+  font-size:11px;font-weight:500;letter-spacing:1px;color:var(--p3);opacity:0.45;
+  background:var(--bg);padding:3px 12px;border-radius:10px}
+.sl{position:absolute;pointer-events:none;
+  font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.22}
+
+/* Detail */
+#det{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);width:min(560px,94vw);
+  background:var(--w);border:1px solid rgba(98,185,199,0.18);border-radius:14px;
+  padding:22px 24px;z-index:600;opacity:0;pointer-events:none;
+  transition:opacity .3s,transform .3s;transform:translateX(-50%) translateY(8px);
+  box-shadow:0 8px 40px rgba(26,81,92,0.08)}
+#det.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.dh{display:flex;align-items:flex-start;gap:12px}
+.ddt{width:14px;height:14px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.dc{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--s1)}
+.dn{font-size:20px;font-weight:700;color:var(--p1)}
+.dss{font-size:13px;color:var(--p3);margin-top:2px}
+.dp{font-size:14px;line-height:1.7;color:#445;margin-top:12px;border-top:1px solid var(--lt);padding-top:12px}
+.dx{position:absolute;top:12px;right:14px;background:none;border:1px solid var(--lt);
+  width:32px;height:32px;border-radius:7px;cursor:pointer;font-size:16px;color:var(--s1);
+  display:flex;align-items:center;justify-content:center;transition:all .2s}
+.dx:hover{background:var(--lt);color:var(--p1)}
+
+#lg{position:fixed;top:14px;right:14px;z-index:600;background:var(--w);border:1px solid var(--lt);
+  border-radius:12px;padding:16px 20px;box-shadow:0 2px 12px rgba(26,81,92,0.04);max-width:230px}
+#lg h4{font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--s1);margin-bottom:10px}
+.lr{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;font-weight:500;color:var(--p1)}
+.lr .lo{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.lr.dm .lo{border:2px dashed #999;background:transparent}
+
+#ti{position:fixed;top:14px;left:16px;z-index:600}
+#ti h1{font-size:18px;font-weight:700;color:var(--p1);letter-spacing:1px}
+#ti p{font-size:12px;color:var(--p3);margin-top:3px}
+
+#zm{position:fixed;bottom:16px;right:14px;z-index:600;display:flex;gap:4px}
+#zm button{width:42px;height:42px;border-radius:8px;border:1px solid var(--lt);background:var(--w);
+  cursor:pointer;font-size:20px;color:var(--p1);display:flex;align-items:center;justify-content:center;
+  transition:all .15s;box-shadow:0 2px 8px rgba(26,81,92,0.04);touch-action:manipulation}
+#zm button:hover,#zm button:active{background:var(--lt);border-color:var(--p3)}
+
+@media(max-width:768px){
+  #lg{top:auto;bottom:76px;right:8px;padding:10px 14px;max-width:180px}
+  .lr{font-size:12px}
+  #ti h1{font-size:15px}
+  #det{bottom:12px;padding:16px 18px}
+  .dn{font-size:17px}.dp{font-size:13px}
+  #zm button{width:38px;height:38px}
+}
+</style>
+</head>
+<body>
+<div id="ti"><h1>Ecosistema Domus Capital</h1><p>Izq: Líneas de negocio & pipeline · Der: Aliados, equipo, tecnología</p></div>
+<div id="lg">
+  <h4>Leyenda</h4>
+  <div class="lr"><span class="lo" style="background:#62b9c7"></span>Accionistas</div>
+  <div class="lr"><span class="lo" style="background:var(--con)"></span>Consultoría</div>
+  <div class="lr"><span class="lo" style="background:var(--ban)"></span>Banca de inversión</div>
+  <div class="lr"><span class="lo" style="background:var(--ges)"></span>Gestión de capital</div>
+  <div class="lr"><span class="lo" style="background:var(--ally)"></span>Aliados estratégicos</div>
+  <div class="lr"><span class="lo" style="background:var(--team)"></span>Equipo operativo</div>
+  <div class="lr"><span class="lo" style="background:var(--tech)"></span>Stack AI-First</div>
+  <div class="lr dm"><span class="lo"></span>Deal seed</div>
+</div>
+<div id="zm">
+  <button onclick="doZoom(-1)">−</button>
+  <button onclick="doZoom(0)">◎</button>
+  <button onclick="doZoom(1)">+</button>
+</div>
+<div id="det">
+  <button class="dx" onclick="cl()">✕</button>
+  <div class="dh"><span class="ddt" id="xd"></span><div><div class="dc" id="xc"></div><div class="dn" id="xn"></div><div class="dss" id="xs"></div></div></div>
+  <div class="dp" id="xp"></div>
+</div>
+<div id="wrap">
+<div id="board">
+<svg class="cv" id="sv"></svg>
+</div>
+</div>
+<script>
+const BW=3000,BH=2400,CX=1500,CY=1200;
+const B=document.getElementById('board'),WR=document.getElementById('wrap'),SV=document.getElementById('sv');
+const NS='http://www.w3.org/2000/svg';
+let sc=1;
+
+function calcSc(){return Math.min(window.innerWidth/BW,window.innerHeight/BH,0.8)}
+function applySc(s){
+  sc=Math.max(0.25,Math.min(1.5,s));
+  B.style.width=BW*sc+'px';B.style.height=BH*sc+'px';
+  B.style.transform=`scale(${sc})`;B.style.transformOrigin='0 0';
+  SV.setAttribute('viewBox',`0 0 ${BW} ${BH}`);
+  SV.style.width=BW+'px';SV.style.height=BH+'px';
+}
+function centerV(){WR.scrollLeft=CX*sc-window.innerWidth/2;WR.scrollTop=CY*sc-window.innerHeight/2}
+function doZoom(d){if(d===0)applySc(calcSc());else applySc(sc+(d>0?0.15:-0.15));centerV()}
+
+const CC={
+  acc:{n:'Accionistas',c:'#62b9c7'},
+  con:{n:'Consultoría',c:'#1a515c'},ban:{n:'Banca de inversión',c:'#1a7a6a'},ges:{n:'Gestión de capital',c:'#2a8a4a'},
+  ally:{n:'Aliados estratégicos',c:'#b07018'},team:{n:'Equipo operativo',c:'#6040a8'},tech:{n:'Stack AI-First',c:'#2060a0'},
+};
+
+// ACCIONISTAS: wider spread, 200px from center, positioned to avoid overlap
+// Sebastián at top (y-200), Angulari bottom-right (+170,+100), Cerrito bottom-left (-170,+100)
+const ND=[
+  {id:'seb',cat:'acc',x:CX,y:CY-200,sz:30,al:'center',cls:'accionista',
+    nm:'Sebastián García',sb:'Socio Director — CEO operativo',
+    ds:'Producing partner. Abogado (Uniandes), MSc RE (NYU). Origina, estructura, produce, maneja Avenza, construye sistemas IA. Co-fundador Avenza.'},
+  {id:'ang',cat:'acc',x:CX+210,y:CY+110,sz:30,al:'right',cls:'accionista',
+    nm:'Angulari / Camilo García',sb:'Accionista — Habilitación de suelo',
+    ds:'Ing. Civil (Uniandes), MBA (Texas). Socio director Angulari. JD Ospinas y Multiplika. Comité inversiones Patria. Camacol.'},
+  {id:'cer',cat:'acc',x:CX-210,y:CY+110,sz:30,al:'left',cls:'accionista',
+    nm:'Cerrito / David + Manuel',sb:'Accionistas 95% (50/50)',
+    ds:'David Yanovich: JD Sura, Celsia, BdB, Pactia. Manuel Maiguashca: Ex-Viceministro Minas, JD Ecopetrol, Isagen. Socio discreto: Luis Ernesto Mejía.'},
+
+  // LEFT: CONSULTORÍA (top-left)
+  // Line node: dot left, text right — no overlap with title
+  {id:'con',cat:'con',x:440,y:310,sz:28,al:'right',cls:'line-nd',
+    nm:'Consultoría',sb:'Advisory · Due diligence · Estudios de mercado',
+    ds:'Puerta de entrada al funnel. Conocer clientes, mercados, activos y construir relacionamiento.'},
+  {id:'pbi',cat:'con',x:320,y:440,sz:17,al:'left',
+    nm:'BID El Salvador Fase 2',sb:'Mercados municipales — Activo',
+    ds:'Segunda etapa consultoría mercados municipales, contratada con BID vía Luis Schloeter.'},
+  {id:'sce',cat:'con',x:320,y:550,sz:14,al:'left',seed:1,
+    nm:'CESA',sb:'Advisory + nueva sede — Seed',
+    ds:'Advisory y potencial estructuración de deal para la nueva sede del CESA.'},
+  {id:'pma',cat:'con',x:320,y:650,sz:14,al:'left',seed:1,
+    nm:'Marcali',sb:'Advisory estratégico — Seed',
+    ds:'Propuesta de advisory estratégico en proceso.'},
+
+  // LEFT: BANCA (center-left)
+  {id:'ban',cat:'ban',x:440,y:830,sz:28,al:'right',cls:'line-nd',
+    nm:'Banca de inversión',sb:'PA · Fiducias · M&A · Levantamiento de capital',
+    ds:'Transacciones y estructuraciones. Línea de mayor volumen: +USD 800M históricos.'},
+  {id:'p72',cat:'ban',x:290,y:960,sz:17,al:'left',
+    nm:'72x9',sb:'Uso mixto Bogotá — Activo',
+    ds:'Oficinas, retail P1-P2, terraza, rooftop. Coala gerente, ASYS constructor, Domus estructurador, Avenza gestor.'},
+  {id:'par',cat:'ban',x:290,y:1060,sz:16,al:'left',
+    nm:'ARPRO-Coala',sb:'M&A Advisory — Activo',
+    ds:'Cuatro fases, success fee 2% sobre valor combinado.'},
+  {id:'pba',cat:'ban',x:290,y:1155,sz:16,al:'left',
+    nm:'Barú — Grupo Argos',sb:'67 ha — Activo',
+    ds:'Comercialización tierra. Tesis desarrollo hotelero.'},
+  {id:'pco',cat:'ban',x:290,y:1250,sz:15,al:'left',
+    nm:'Mandato Coala',sb:'BD — 5 proyectos — Activo',
+    ds:'Retainer COP 20M/mes descendente a 100% variable.'},
+  {id:'sh9',cat:'ban',x:620,y:960,sz:13,al:'right',seed:1,
+    nm:'Hotel 93-11',sb:'Sura → Kimpton — Seed',
+    ds:'Reconversión oficinas Sura Cra11/93. Diseños Gabriel Arango, LOI IHG/Kimpton, presupuesto Arpro.'},
+  {id:'scl',cat:'ban',x:620,y:1060,sz:13,al:'right',seed:1,
+    nm:'Claustro Usaquén',sb:'Angulari — Hotel mixto — Seed',
+    ds:'Plaza de Usaquén. Prediseño hotel + apts. Posible sede CESA.'},
+  {id:'shm',cat:'ban',x:620,y:1155,sz:13,al:'right',seed:1,
+    nm:'Hotel Medellín',sb:'Pichincha — ~USD 17M — Seed',
+    ds:'Lote Av. El Poblado. ~140 hab. Alianza Coala + Onirius.'},
+  {id:'sta',cat:'ban',x:620,y:1250,sz:13,al:'right',seed:1,
+    nm:'Talou',sb:'Uso mixto — tipo 72x9 — Seed',
+    ds:'Alianza con Arpro. Potencial compartimento Avenza.'},
+
+  // LEFT: GESTIÓN (bottom-left)
+  {id:'ges',cat:'ges',x:440,y:1470,sz:28,al:'right',cls:'line-nd',
+    nm:'Gestión de capital',sb:'Directa + Avenza Asset Management',
+    ds:'Para proyectos que requieren capital. Dos brazos: gestión directa y Avenza como Gestor Profesional FCP.'},
+  {id:'pm3',cat:'ges',x:300,y:1600,sz:17,al:'left',
+    nm:'M3 Storage',sb:'Gestión directa — Activo',
+    ds:'COP 2.000M levantados, 5 inversionistas, 2 centros sobre proyecciones. Renta neta 24%, MOIC ~2x.'},
+  {id:'ave',cat:'ges',x:440,y:1730,sz:20,al:'right',
+    nm:'Avenza Asset Management',sb:'FCP — DDQ ante Fiduciaria Aval',
+    ds:'Domus 46.55% + Arpro 48.45%. Meta 2026: 3 compartimentos, AUM COP 100.000M. Fees aprobados: 0.4% originales.'},
+  {id:'aur',cat:'ges',x:260,y:1870,sz:13,al:'left',nm:'Urban Plaza',sb:'Original — 0.4% AUM',ds:'Compartimento original.'},
+  {id:'a19',cat:'ges',x:440,y:1870,sz:13,al:'center',nm:'19-90',sb:'Original — 0.4% AUM',ds:'Compartimento original.'},
+  {id:'apl',cat:'ges',x:620,y:1870,sz:13,al:'right',nm:'Plura',sb:'Original — 0.4% AUM',ds:'Compartimento original.'},
+  {id:'a72',cat:'ges',x:320,y:1990,sz:11,al:'left',seed:1,nm:'Comp. 72x9',sb:'Fees por definir',ds:'Compartimento nuevo.'},
+  {id:'ata',cat:'ges',x:540,y:1990,sz:11,al:'right',seed:1,nm:'Comp. Talou',sb:'Potencial',ds:'Potencial compartimento con Arpro.'},
+
+  // RIGHT: ALIADOS
+  {id:'arp',cat:'ally',x:2200,y:350,sz:20,al:'right',nm:'Arpro',sb:'Socio Avenza 48.45%',
+    ds:'Camilo Otálora presidente. 5% derechos económicos Avenza. Aliado en Talou, Hotel 93-11.'},
+  {id:'coa',cat:'ally',x:2200,y:480,sz:20,al:'right',nm:'Coala',sb:'Desarrollador / Constructor',
+    ds:'Gerente 72x9. ~5 proyectos mandato BD. Retainer COP 20M/mes. CAA fundador y mentor de Sebastián.'},
+  {id:'m3a',cat:'ally',x:2200,y:610,sz:20,al:'right',nm:'M3 Storage',sb:'Operador self-storage',
+    ds:'JJ Cabal country manager. Dominique Teysseyre fundador.'},
+  {id:'oni',cat:'ally',x:2580,y:410,sz:16,al:'right',nm:'Onirius',sb:'Consultoría hotelera',
+    ds:'Consultor y estructurador de negocios hoteleros.'},
+  {id:'sch',cat:'ally',x:2580,y:540,sz:16,al:'right',nm:'Luis Schloeter (BID)',sb:'Housing & Urban Development',
+    ds:'Especialista senior BID, Panamá. Venezolano. 5 contratos RD/El Salvador/Panamá. Explorando Venezuela.'},
+
+  // RIGHT: EQUIPO
+  {id:'cri',cat:'team',x:2200,y:910,sz:18,al:'right',nm:'Cristian Zambrano',sb:'Especialista en inversiones',
+    ds:'Ing. Civil + Arquitecto (Uniandes). Más senior. Consultorías, contenido, seguimiento. Ex GHL, Péntaco.'},
+  {id:'val',cat:'team',x:2200,y:1060,sz:16,al:'right',nm:'Valentina Eraso',sb:'Analista Sr. — Compartida con Cerrito',
+    ds:'Adm. Empresas (Uniandes). Evaluación financiera, tesis inversión, M&A. Ex Patria, ex Génesis.'},
+  {id:'sim',cat:'team',x:2200,y:1200,sz:16,al:'right',nm:'Simón Gómez',sb:'Analista — Compartido con Cerrito',
+    ds:'Ing. Industrial + Economista (Uniandes). Modelación financiera, originación, cierre.'},
+
+  // RIGHT: TECH
+  {id:'tcl',cat:'tech',x:2200,y:1530,sz:18,al:'right',nm:'Claude AI Suite',sb:'Chat · Cowork · Chrome · Excel · PPT',
+    ds:'Herramienta primaria IA. Migración 100% desde ChatGPT.'},
+  {id:'tno',cat:'tech',x:2200,y:1670,sz:18,al:'right',nm:'Notion',sb:'Cerebro operativo',
+    ds:'Tasks, Meeting Notes, Dashboard, Panel de Control, CRM Avenza (48 inversionistas).'},
+  {id:'tga',cat:'tech',x:2200,y:1800,sz:16,al:'right',nm:'Gamma / MS 365',sb:'Presentaciones y documentos',
+    ds:'Gamma para presentaciones web. MS 365 + Google Suite para documentos.'},
+  {id:'tdi',cat:'tech',x:2580,y:1590,sz:14,al:'right',nm:'Domus Intel',sb:'News intelligence agent — 7am COT',
+    ds:'GitHub Actions + Node.js + Claude API. Briefing curado diario.'},
+  {id:'tmp',cat:'tech',x:2580,y:1730,sz:14,al:'right',nm:'Meeting Notes Bot',sb:'Procesador automático → Notion',
+    ds:'Claude Project que extrae tareas y compromisos.'},
+];
+
+const CN=[
+  ['sun','seb','#62b9c7',2.5],['sun','ang','#62b9c7',2.5],['sun','cer','#62b9c7',2.5],
+  ['seb','ang','#62b9c7',0.7],['ang','cer','#62b9c7',0.7],['cer','seb','#62b9c7',0.7],
+  ['sun','con','#1a515c',1.2],['sun','ban','#1a7a6a',1.2],['sun','ges','#2a8a4a',1.2],
+  ['con','pbi','#1a515c',0.5],['con','sce','#1a515c',0.35],['con','pma','#1a515c',0.35],
+  ['ban','p72','#1a7a6a',0.5],['ban','par','#1a7a6a',0.5],['ban','pba','#1a7a6a',0.5],['ban','pco','#1a7a6a',0.5],
+  ['ban','sh9','#1a7a6a',0.3],['ban','scl','#1a7a6a',0.3],['ban','shm','#1a7a6a',0.3],['ban','sta','#1a7a6a',0.3],
+  ['ges','pm3','#2a8a4a',0.5],['ges','ave','#2a8a4a',0.5],
+  ['ave','aur','#2a8a4a',0.4],['ave','a19','#2a8a4a',0.4],['ave','apl','#2a8a4a',0.4],
+  ['ave','a72','#2a8a4a',0.25],['ave','ata','#2a8a4a',0.25],
+  ['con','ban','#1a515c',0.6,'d'],['ban','ges','#1a7a6a',0.6,'d'],
+  ['sch','pbi','#b07018',0.3,'d'],['coa','p72','#b07018',0.3,'d'],
+  ['m3a','pm3','#b07018',0.3,'d'],['arp','sta','#b07018',0.3,'d'],
+  ['ang','scl','#62b9c7',0.3,'d'],['cer','val','#6040a8',0.3,'d'],['cer','sim','#6040a8',0.3,'d'],
+];
+
+// Zones
+function addZ(x,y,w,h,c,a){const d=document.createElement('div');d.className='zone';d.style.cssText=`left:${x}px;top:${y}px;width:${w}px;height:${h}px;background:${c};opacity:${a}`;B.appendChild(d)}
+addZ(100,180,700,550,'#1a515c',0.035);
+addZ(100,770,700,560,'#1a7a6a',0.035);
+addZ(100,1370,700,700,'#2a8a4a',0.035);
+addZ(2050,200,700,520,'#b07018',0.035);
+addZ(2050,770,700,530,'#6040a8',0.035);
+addZ(2050,1370,700,500,'#2060a0',0.035);
+
+// Section titles - positioned clearly above sections, not overlapping dots
+function addST(l,t,txt,c){const d=document.createElement('div');d.className='zt';d.textContent=txt;d.style.cssText=`left:${l}px;top:${t}px;color:${c};border-color:${c}55;background:${c}0a`;B.appendChild(d)}
+addST(200,200,'Consultoría','#1a515c');
+addST(200,790,'Banca de inversión','#1a7a6a');
+addST(200,1390,'Gestión de capital','#2a8a4a');
+addST(2100,220,'Aliados estratégicos','#b07018');
+addST(2100,790,'Equipo operativo','#6040a8');
+addST(2100,1390,'Stack AI-First','#2060a0');
+
+function addHL(l,t,txt){const d=document.createElement('div');d.className='hl';d.textContent=txt;d.style.cssText=`left:${l}px;top:${t}px`;B.appendChild(d)}
+addHL(450,130,'Líneas de negocio & pipeline');
+addHL(2400,130,'Capacidades & red');
+
+function addSL(l,t,txt,c){const d=document.createElement('div');d.className='sl';d.textContent=txt;d.style.cssText=`left:${l}px;top:${t}px;color:${c};transform:translate(-50%,-50%)`;B.appendChild(d)}
+addSL(290,930,'Activos','#1a7a6a');
+addSL(620,930,'Seed','#1a7a6a');
+
+[200,420].forEach(r=>{const d=document.createElement('div');d.className='orb';d.style.cssText=`left:${CX}px;top:${CY}px;width:${r*2}px;height:${r*2}px`;B.appendChild(d)});
+
+const vl=document.createElementNS(NS,'line');
+vl.setAttribute('x1',CX);vl.setAttribute('y1',60);vl.setAttribute('x2',CX);vl.setAttribute('y2',BH-60);
+vl.setAttribute('stroke','rgba(98,185,199,0.06)');vl.setAttribute('stroke-width','1');vl.setAttribute('stroke-dasharray','6 8');
+SV.appendChild(vl);
+
+function gp(id){if(id==='sun')return{x:CX,y:CY};const n=ND.find(d=>d.id===id);return n||{x:CX,y:CY}}
+CN.forEach(([f,t,c,w,s])=>{
+  const a=gp(f),b=gp(t),l=document.createElementNS(NS,'line');
+  l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);
+  l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);l.setAttribute('stroke-opacity',0.14);
+  if(s==='d')l.setAttribute('stroke-dasharray','8 5');
+  SV.appendChild(l);
+});
+
+function addFL(l,t,txt){const d=document.createElement('div');d.className='fl';d.textContent=txt;d.style.cssText=`left:${l}px;top:${t}px`;B.appendChild(d)}
+addFL(440,740,'funnel ↓');
+addFL(440,1340,'funnel ↓');
+
+const sun=document.createElement('div');sun.className='sun';sun.style.cssText=`left:${CX}px;top:${CY}px`;
+sun.innerHTML='<div class="sun-c"><span class="s1">DOMUS</span><span class="s2">CAPITAL</span></div>';
+sun.onclick=()=>sd({nm:'Domus Capital',sb:'Banca de inversión inmobiliaria & estructuración financiera',
+  ds:'Tres líneas como funnel: consultoría → banca → gestión de capital. +USD 1Bn estructurados · 350K m² · 6K+ unidades · USD 800M+ transacciones.',cat:'acc'});
+B.appendChild(sun);
+
+ND.forEach(n=>{
+  const c=CC[n.cat];if(!c)return;
+  const al=n.al||'right';
+  const el=document.createElement('div');
+  el.className='nd a-'+al+(n.seed?' seed':'')+(n.cls?' '+n.cls:'');
+  el.style.cssText=`left:${n.x}px;top:${n.y}px;--ds:${n.sz}px;--nc:${c.c}`;
+  const dot=document.createElement('div');dot.className='nd-dot';
+  dot.style.cssText=`width:${n.sz}px;height:${n.sz}px;background:${c.c};box-shadow:0 0 0 3px ${c.c}18`;
+  el.appendChild(dot);
+  const info=document.createElement('div');info.className='nd-info';
+  info.innerHTML=`<div class="nd-n">${n.nm}</div>${n.sb?`<div class="nd-s">${n.sb}</div>`:''}`;
+  el.appendChild(info);
+  el.addEventListener('click',()=>sd(n));
+  B.appendChild(el);
+});
+
+function sd(n){
+  const c=CC[n.cat]||CC.acc;
+  document.getElementById('xd').style.background=c.c;
+  document.getElementById('xc').textContent=c.n;document.getElementById('xc').style.color=c.c;
+  document.getElementById('xn').textContent=n.nm;
+  document.getElementById('xs').textContent=n.sb||'';
+  document.getElementById('xp').textContent=n.ds||'';
+  document.getElementById('det').classList.add('show');
+}
+function cl(){document.getElementById('det').classList.remove('show')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cl()});
+
+let dr=false,sx,sy,lx,ly;
+WR.addEventListener('mousedown',e=>{if(e.target.closest('.nd,.sun,#det,#lg,#zm'))return;dr=true;sx=e.pageX;sy=e.pageY;lx=WR.scrollLeft;ly=WR.scrollTop});
+document.addEventListener('mousemove',e=>{if(!dr)return;WR.scrollLeft=lx-(e.pageX-sx);WR.scrollTop=ly-(e.pageY-sy)});
+document.addEventListener('mouseup',()=>{dr=false});
+let ts=null;
+WR.addEventListener('touchstart',e=>{if(e.target.closest('.nd,.sun,#det,#lg,#zm'))return;if(e.touches.length===1){ts={x:e.touches[0].pageX,y:e.touches[0].pageY,sl:WR.scrollLeft,st:WR.scrollTop}}},{passive:true});
+WR.addEventListener('touchmove',e=>{if(!ts||e.touches.length!==1)return;WR.scrollLeft=ts.sl-(e.touches[0].pageX-ts.x);WR.scrollTop=ts.st-(e.touches[0].pageY-ts.y)},{passive:true});
+WR.addEventListener('touchend',()=>{ts=null});
+let lpd=0;
+WR.addEventListener('touchstart',e=>{if(e.touches.length===2)lpd=Math.hypot(e.touches[0].pageX-e.touches[1].pageX,e.touches[0].pageY-e.touches[1].pageY)},{passive:true});
+WR.addEventListener('touchmove',e=>{if(e.touches.length===2){const d=Math.hypot(e.touches[0].pageX-e.touches[1].pageX,e.touches[0].pageY-e.touches[1].pageY);if(lpd>0)applySc(sc+(d-lpd)*0.003);lpd=d}},{passive:true});
+WR.addEventListener('touchend',e=>{if(e.touches.length<2)lpd=0});
+
+applySc(calcSc());
+setTimeout(centerV,80);
+window.addEventListener('resize',()=>{applySc(calcSc());centerV()});
+</script>
+</body>
+</html>
